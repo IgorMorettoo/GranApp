@@ -1,0 +1,165 @@
+/* Fundo geral bege */
+body, html {
+  background-color: #f5f0e6;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  margin: 0;
+  padding: 0;
+  height: auto;
+}
+
+/* Centraliza tudo na tela */
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 30px 20px;
+}
+
+
+/* Títulos */
+h1, h2, h3 {
+  color: #5a4d3f;
+  margin-bottom: 16px;
+}
+
+/* Botões roxos */
+button {
+  background-color: #7a5ca6;
+  color: #fcfaf4;
+  padding: 10px 18px;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: #624b87;
+}
+
+/* Inputs e selects */
+input[type="text"],
+input[type="number"],
+select {
+  border: 1.5px solid #bfae8a;
+  border-radius: 6px;
+  padding: 8px 10px;
+  margin-right: 12px;
+  font-size: 1rem;
+  background-color: #fcfaf4 !important;
+  color: #5a4d3f !important;
+}
+
+input::placeholder {
+  color: #9c8c74;
+}
+
+input:focus,
+select:focus {
+  border-color: #7a5ca6;
+  outline: none;
+}
+
+/* Box dos grupos */
+.grupo-item {
+  background-color: #fdfaf3;
+  border: 2px solid #bfae8a;
+  border-radius: 8px;
+  padding: 14px 18px;
+  margin-bottom: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.grupo-item:hover {
+  background-color: #f7eee0;
+  border-color: #7a5ca6;
+}
+
+/* Listas */
+ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+li {
+  margin-bottom: 10px;
+  color: #5a4d3f;
+}
+
+/* Descrição da despesa */
+.descricao-despesa {
+  color: rgb(0, 0, 0);
+  font-weight: 600;
+}
+
+/* Flex para labels personalizados */
+.flex.items-center {
+  align-items: center;
+}
+
+.flex.items-center > span {
+  display: inline-block;
+  width: 100px;
+  font-weight: 600;
+  color: #6a5f4a;
+}
+
+.flex.items-center > input {
+  width: 80px;
+}
+
+/* Espaçamentos padrão */
+.mt-2 {
+  margin-top: 0.5rem;
+}
+.mt-4 {
+  margin-top: 1rem;
+  color: rgb(0, 0, 0);
+}
+.mt-6 {
+  margin-top: 1.5rem;
+  color: #5a4d3f;
+}
+.mt-7 {
+  margin-top: 1.5rem;
+  color: #000000;
+}
+.mb-2 {
+  margin-top: 1rem;
+  color: rgb(0, 0, 0);
+}
+.pessoa {
+  color: #5a4d3f;
+}
+.secao {
+  background-color: #fdfaf3;
+  border: 2px solid #bfae8a;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 24px;
+}
+
+/* Borda roxinha */
+.secao-roxa {
+  border: 2px solid #7a5ca6;
+}
+
+h2 {
+  margin-bottom: 16px;
+}
+
+ul {
+  padding-left: 20px;
+}
+
+input[type="text"],
+input[type="number"],
+select {
+  margin-bottom: 12px;
+}
+
+.mt-8{
+  color: #000000;
+}
