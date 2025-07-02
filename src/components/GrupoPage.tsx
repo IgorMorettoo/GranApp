@@ -13,9 +13,29 @@ type Props = {
 export default function GrupoPage({ grupo, atualizarGrupo, voltar }: Props) {
   const [nomePessoa, setNomePessoa] = useState<string>("");
 
-  const adicionarPessoa = () => {
-    const novaPessoa: Pessoa = { id: Date.now(), nome: nomePessoa };
-    atualizarGrupo({ ...grupo, pessoas: [...grupo.pessoas, novaPessoa] });
+  const adicionarPessoa = async () => {
+    if (!nomePessoa.trim()) {
+      alert("Informe o nome da pessoa!");
+      return;
+    }
+
+    // POST para cadastrar pessoa no backend
+    const resp = await fetch("http://localhost:3001/api/pessoas", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ nome: nomePessoa, grupo_id: grupo.id }),
+    });
+
+    if (!resp.ok) {
+      alert("Erro ao adicionar pessoa!");
+      return;
+    }
+
+    // Recarrega lista de pessoas desse grupo
+    const resPessoas = await fetch(`http://localhost:3001/api/pessoas?grupo_id=${grupo.id}`);
+    const pessoas: Pessoa[] = await resPessoas.json();
+
+    atualizarGrupo({ ...grupo, pessoas });
     setNomePessoa("");
   };
 
@@ -23,37 +43,37 @@ export default function GrupoPage({ grupo, atualizarGrupo, voltar }: Props) {
     <div className="secao secao-roxa">
       <button onClick={voltar} className="mb-4 underline">← Voltar</button>
       <h2 className="text-xl font-bold">{grupo.nome}</h2>
-        <div className="secao secao-roxa">
-            <h3 className="Pessoa">Pessoas:</h3>
-            <ul>
-        {grupo.pessoas.map((p) => (
-          <li key={p.id}>{p.nome}</li>
-        ))}
-      </ul>
+      <div className="secao secao-roxa">
+        <h3 className="Pessoa">Pessoas:</h3>
+        <ul>
+          {grupo.pessoas.map((p) => (
+            <li key={p.id}>{p.nome}</li>
+          ))}
+        </ul>
 
-      <input
-        type="text"
-        placeholder="Nome da pessoa"
-        value={nomePessoa}
-        onChange={(e) => setNomePessoa(e.target.value)}
-        className="border p-2 mr-2 mt-2"
-      />
-      <button onClick={adicionarPessoa} className="bg-green-500 text-white px-4 py-2">Adicionar Pessoa</button>
-        </div>
-      
-      
-        <div className="secao secao-roxa">
-            <AdicionarDespesaForm grupo={grupo} atualizarGrupo={atualizarGrupo} />
-        </div>
-      
-        <div className="secao secao-roxa">
-            <PagamentoForm grupo={grupo} atualizarGrupo={atualizarGrupo} />
-        </div>
-      
-        <div className="secao secao-roxa">
-            <SaldoResumo grupo={grupo} />
-        </div>
-      
+        <input
+          type="text"
+          placeholder="Nome da pessoa"
+          value={nomePessoa}
+          onChange={(e) => setNomePessoa(e.target.value)}
+          className="border p-2 mr-2 mt-2"
+        />
+        <button onClick={adicionarPessoa} className="bg-green-500 text-white px-4 py-2">
+          Adicionar Pessoa
+        </button>
+      </div>
+
+      <div className="secao secao-roxa">
+        <AdicionarDespesaForm grupo={grupo} atualizarGrupo={atualizarGrupo} />
+      </div>
+
+      <div className="secao secao-roxa">
+        <PagamentoForm grupo={grupo} atualizarGrupo={atualizarGrupo} />
+      </div>
+
+      <div className="secao secao-roxa">
+        <SaldoResumo grupo={grupo} />
+      </div>
     </div>
   );
 }

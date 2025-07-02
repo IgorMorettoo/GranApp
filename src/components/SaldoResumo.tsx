@@ -18,18 +18,18 @@ export default function SaldoResumo({ grupo }: Props) {
 
     // Processa as despesas
     grupo.despesas.forEach((d) => {
-      d.divisao.forEach((div) => {
+      (d.divisao ?? []).forEach((div) => {
         if (div.pessoaId !== d.responsavelId) {
           saldos[div.pessoaId][d.responsavelId] -= div.valor;
           saldos[d.responsavelId][div.pessoaId] += div.valor;
         }
       });
+    });
 
-      // Processa pagamentos
-      d.pagamentos.forEach((pg) => {
-        saldos[pg.de][pg.para] += pg.valor;
-        saldos[pg.para][pg.de] -= pg.valor;
-      });
+    // Processa os pagamentos (agora, nível de grupo)
+    (grupo.pagamentos ?? []).forEach((pg) => {
+      saldos[pg.de][pg.para] += pg.valor;
+      saldos[pg.para][pg.de] -= pg.valor;
     });
 
     // Monta as relações finais

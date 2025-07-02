@@ -1,33 +1,63 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import GrupoList from "./components/GrupoList";
 import GrupoPage from "./components/GrupoPage";
-import type { Grupo } from "./types";
+import type { Grupo, Pessoa, Despesa, Pagamento } from "./types";
 import './App.css';
 
 function App() {
   const [grupos, setGrupos] = useState<Grupo[]>([]);
   const [grupoAtivo, setGrupoAtivo] = useState<Grupo | null>(null);
 
-  const adicionarGrupo = (nome: string) => {
-    const novoGrupo: Grupo = {
-      id: Date.now(),
-      nome,
-      pessoas: [],
-      despesas: [],
-    };
-    setGrupos([...grupos, novoGrupo]);
+  useEffect(() => {
+    fetchGrupos();
+  }, []);
+
+  const fetchGrupos = async () => {
+    try {
+      const res = await fetch("http://localhost:3001/api/grupos");
+      const data: Grupo[] = await res.json();
+      setGrupos(data);
+    } catch (error) {
+      console.error("Erro ao buscar grupos:", error);
+    }
   };
 
-  const selecionarGrupo = (id: number) => {
-    setGrupoAtivo(grupos.find((g) => g.id === id) || null);
+  const adicionarGrupo = async (nome: string) => {
+    try {
+      const res = await fetch("http://localhost:3001/api/grupos", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ nome }),
+      });
+      const novoGrupo: { id: number; nome: string } = await res.json();
+      setGrupos((prev) => [...prev, { ...novoGrupo, pessoas: [], despesas: [], pagamentos: [] }]);
+    } catch (error) {
+      console.error("Erro ao adicionar grupo:", error);
+    }
+  };
+
+  const selecionarGrupo = async (id: number) => {
+    try {
+      const [resG, resP, resD, resPag] = await Promise.all([
+        fetch(`http://localhost:3001/api/grupos/${id}`),
+        fetch(`http://localhost:3001/api/pessoas?grupo_id=${id}`),
+        fetch(`http://localhost:3001/api/despesas?grupo_id=${id}`),
+        fetch(`http://localhost:3001/api/pagamentos?grupo_id=${id}`)
+      ]);
+      const grupoInfo: { id: number; nome: string } = await resG.json();
+      const pessoas: Pessoa[] = await resP.json();
+      const despesas: Despesa[] = await resD.json();
+      const pagamentos: Pagamento[] = await resPag.json();
+      setGrupoAtivo({ ...grupoInfo, pessoas, despesas, pagamentos });
+    } catch (error) {
+      console.error("Erro ao selecionar grupo:", error);
+    }
   };
 
   const atualizarGrupo = (grupoAtualizado: Grupo) => {
-  setGrupos((prevGrupos) =>
-    prevGrupos.map((g) => (g.id === grupoAtualizado.id ? grupoAtualizado : g))
-  );
-  setGrupoAtivo(grupoAtualizado);
-};
+    setGrupos((prev) => prev.map(g => g.id === grupoAtualizado.id ? grupoAtualizado : g));
+    setGrupoAtivo(grupoAtualizado);
+  };
 
   return (
     <div className="container">

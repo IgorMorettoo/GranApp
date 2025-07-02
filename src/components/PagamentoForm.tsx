@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { Grupo, Pagamento } from "../types";
+import type { Grupo } from "../types";
 
 type Props = {
   grupo: Grupo;
@@ -7,72 +7,80 @@ type Props = {
 };
 
 export default function PagamentoForm({ grupo, atualizarGrupo }: Props) {
-  const [de, setDe] = useState<string>("");
-  const [para, setPara] = useState<string>("");
+  const [de, setDe] = useState<number>(grupo.pessoas[0]?.id || 0);
+  const [para, setPara] = useState<number>(
+    grupo.pessoas.length > 1 ? grupo.pessoas[1].id : grupo.pessoas[0]?.id || 0
+  );
   const [valor, setValor] = useState<string>("");
 
-  const registrarPagamento = () => {
-    const despesaIndex = grupo.despesas.length - 1;
-    if (despesaIndex < 0) {
-      alert("Nenhuma despesa encontrada!");
+  const registrarPagamento = async () => {
+    const valorNum = parseFloat(valor);
+    if (isNaN(valorNum) || valorNum <= 0) {
+      alert("Informe um valor válido para o pagamento.");
+      return;
+    }
+    if (de === para) {
+      alert("Selecione pessoas diferentes para pagar e receber.");
       return;
     }
 
-    if (!de || !para || !valor) {
-      alert("Preencha todos os campos!");
+    // POST para cadastrar pagamento no backend
+    const resp = await fetch("http://localhost:3001/api/pagamentos", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        de: Number(de),
+        para: Number(para),
+        valor: valorNum,
+        grupo_id: grupo.id, // Envia o grupo_id!
+      }),
+    });
+
+    if (!resp.ok) {
+      alert("Erro ao registrar pagamento!");
       return;
     }
 
-    const novoPagamento: Pagamento = {
-      de: parseInt(de),
-      para: parseInt(para),
-      valor: parseFloat(valor),
-    };
-
-    // Cópia imutável das despesas
-    const despesasAtualizadas = [...grupo.despesas];
-    const despesaAtualizada = {
-      ...despesasAtualizadas[despesaIndex],
-      pagamentos: [...despesasAtualizadas[despesaIndex].pagamentos, novoPagamento],
-    };
-
-    despesasAtualizadas[despesaIndex] = despesaAtualizada;
-
-    atualizarGrupo({ ...grupo, despesas: despesasAtualizadas });
-
-    setDe("");
-    setPara("");
+    // Aqui você pode recarregar os dados do grupo se quiser.
+    atualizarGrupo(grupo);
     setValor("");
   };
 
   return (
     <div className="mt-4">
       <h3 className="font-semibold">Registrar Pagamento:</h3>
-      <select value={de} onChange={(e) => setDe(e.target.value)} className="border p-2 mr-2">
-        <option value="">De</option>
+      <select
+        value={de}
+        onChange={(e) => setDe(Number(e.target.value))}
+        className="border p-2 mr-2"
+      >
         {grupo.pessoas.map((p) => (
-          <option key={p.id} value={p.id}>
-            {p.nome}
-          </option>
+          <option key={p.id} value={p.id}>{p.nome}</option>
         ))}
       </select>
-      <select value={para} onChange={(e) => setPara(e.target.value)} className="border p-2 mr-2">
-        <option value="">Para</option>
+      →
+      <select
+        value={para}
+        onChange={(e) => setPara(Number(e.target.value))}
+        className="border p-2 ml-2 mr-2"
+      >
         {grupo.pessoas.map((p) => (
-          <option key={p.id} value={p.id}>
-            {p.nome}
-          </option>
+          <option key={p.id} value={p.id}>{p.nome}</option>
         ))}
       </select>
       <input
         value={valor}
         onChange={(e) => setValor(e.target.value)}
-        type="number"
         placeholder="Valor"
+        type="number"
         className="border p-2 mr-2"
       />
-      <button onClick={registrarPagamento} className="bg-orange-500 text-white px-4 py-2">
-        Registrar
+      <button
+        onClick={registrarPagamento}
+        className="bg-green-500 text-white px-4 py-2"
+        disabled={grupo.pessoas.length < 2}
+      >
+        Registrar Pagamento
       </button>
     </div>
   );

@@ -9,9 +9,11 @@ export type Divisao = {
 };
 
 export type Pagamento = {
+  id: number;
   de: number;
   para: number;
   valor: number;
+  grupo_id: number;
 };
 
 export type Despesa = {
@@ -20,7 +22,7 @@ export type Despesa = {
   valor: number;
   responsavelId: number;
   divisao: Divisao[];
-  pagamentos: Pagamento[];
+  // pagamentos removido para refletir modelo simplificado
 };
 
 export type Grupo = {
@@ -28,4 +30,5 @@ export type Grupo = {
   nome: string;
   pessoas: Pessoa[];
   despesas: Despesa[];
+  pagamentos: Pagamento[]; // adiciona lista de pagamentos do grupo
 };

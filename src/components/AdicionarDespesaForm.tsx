@@ -1,4 +1,4 @@
-import type { Grupo, Despesa, Divisao } from "../types";
+import type { Grupo, Divisao } from "../types";
 import { useState, useEffect } from "react";
 
 type Props = {
@@ -19,7 +19,7 @@ export default function AdicionarDespesaForm({ grupo, atualizarGrupo }: Props) {
     }
   }, [grupo.pessoas]);
 
-  const adicionarDespesa = () => {
+  const adicionarDespesa = async () => {
     const valorTotal = parseFloat(valor);
     if (isNaN(valorTotal) || valorTotal <= 0) {
       alert("Informe um valor válido para a despesa.");
@@ -33,15 +33,13 @@ export default function AdicionarDespesaForm({ grupo, atualizarGrupo }: Props) {
     let divisao: Divisao[] = [];
 
     if (tipoDivisao === "igual") {
-      const participantes = grupo.pessoas; // inclui pagador também
+      const participantes = grupo.pessoas;
       const valorPorPessoa = valorTotal / participantes.length;
-
       divisao = participantes.map((p) => ({
         pessoaId: p.id,
         valor: valorPorPessoa,
       }));
     } else {
-      // divisão personalizada
       const participantes = grupo.pessoas;
       divisao = participantes.map((p) => ({
         pessoaId: p.id,
@@ -55,19 +53,33 @@ export default function AdicionarDespesaForm({ grupo, atualizarGrupo }: Props) {
       }
     }
 
-    const novaDespesa: Despesa = {
-      id: Date.now(),
-      descricao,
-      valor: valorTotal,
-      responsavelId: pagadorId,
-      divisao,
-      pagamentos: [],
-    };
+    try {
+      const resp = await fetch("http://localhost:3001/api/despesas", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          descricao,
+          valor: valorTotal,
+          responsavel_id: pagadorId,
+          grupo_id: grupo.id,
+        }),
+      });
 
-    atualizarGrupo({ ...grupo, despesas: [...grupo.despesas, novaDespesa] });
-    setDescricao("");
-    setValor("");
-    setValoresPersonalizados({});
+      if (!resp.ok) {
+        alert("Erro ao cadastrar despesa!");
+        return;
+      }
+
+      const resDespesas = await fetch(`http://localhost:3001/api/despesas?grupo_id=${grupo.id}`);
+      const despesas = await resDespesas.json();
+      atualizarGrupo({ ...grupo, despesas });
+
+      setDescricao("");
+      setValor("");
+      setValoresPersonalizados({});
+    } catch (error) {
+      alert("Erro ao conectar no backend!"+error);
+    }
   };
 
   const handleValorPersonalizadoChange = (pessoaId: number, novoValor: string) => {
@@ -147,14 +159,14 @@ export default function AdicionarDespesaForm({ grupo, atualizarGrupo }: Props) {
           <ul>
             {grupo.despesas.map((d) => (
               <li key={d.id} className="mb-2">
-                <span className="descricao-despesa">{d.descricao}</span>: R$ {d.valor.toFixed(2)} - Pago por:{" "}
+                <span className="descricao-despesa">{d.descricao}</span>: R$ {Number(d.valor).toFixed(2)} - Pago por:{" "}
                 {grupo.pessoas.find((p) => p.id === d.responsavelId)?.nome || "Desconhecido"}
                 <br />
                 Divisão:{" "}
-                {d.divisao
+                {(d.divisao ?? [])
                   .map(
                     (div) =>
-                      `${grupo.pessoas.find((p) => p.id === div.pessoaId)?.nome || "?"} deve R$ ${div.valor.toFixed(2)}`
+                      `${grupo.pessoas.find((p) => p.id === div.pessoaId)?.nome || "?"} deve R$ ${Number(div.valor).toFixed(2)}`
                   )
                   .join(", ")}
               </li>
