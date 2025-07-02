@@ -5,18 +5,20 @@ type Props = {
 };
 
 export default function SaldoResumo({ grupo }: Props) {
-  // Função para calcular os saldos devidos
   function calcularSaldos(grupo: Grupo) {
     const saldos: Record<number, number> = {};
 
+    // Inicializa todos com saldo zero
     grupo.pessoas.forEach((p) => (saldos[p.id] = 0));
 
+    // Processa as despesas
     grupo.despesas.forEach((d) => {
       d.divisao.forEach((div) => {
-        saldos[div.pessoaId] -= div.valor;
-        saldos[d.responsavelId] += div.valor;
+        saldos[div.pessoaId] -= div.valor; // Devedor diminui
+        saldos[d.responsavelId] += div.valor; // Pagador aumenta
       });
 
+      // Processa pagamentos registrados
       d.pagamentos.forEach((pg) => {
         saldos[pg.de] += pg.valor;
         saldos[pg.para] -= pg.valor;
@@ -33,6 +35,7 @@ export default function SaldoResumo({ grupo }: Props) {
 
     const resultados: { devedor: Pessoa; credor: Pessoa; valor: number }[] = [];
 
+    // Enquanto houver devedor e credor, faz os acertos
     devedores.forEach((devedor) => {
       credores.forEach((credor) => {
         if (devedor.saldo < 0 && credor.saldo > 0) {
@@ -42,6 +45,7 @@ export default function SaldoResumo({ grupo }: Props) {
             const pCredor = grupo.pessoas.find((p) => p.id === credor.id)!;
             resultados.push({ devedor: pDevedor, credor: pCredor, valor });
 
+            // Atualiza os saldos envolvidos
             devedor.saldo += valor;
             credor.saldo -= valor;
           }
