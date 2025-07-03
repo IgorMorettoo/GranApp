@@ -78,7 +78,7 @@ export default function GrupoPage({ grupo, atualizarGrupo, voltar }: Props) {
             {grupo.despesas.map((d) => (
               <li key={d.id} className="border p-2 rounded">
                 <div><strong>{d.descricao}</strong> - R$ {Number(d.valor).toFixed(2)}</div>
-                <div>Responsável: {grupo.pessoas.find(p => p.id === d.responsavelId)?.nome ?? "Desconhecido"}</div>
+                <div>Grupo: {grupo.pessoas.find(p => p.id === d.responsavelId)?.nome ?? "Desconhecido"}</div>
                 <div>
                   Divisão:
                   <ul className="list-disc ml-5">
