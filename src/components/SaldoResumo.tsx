@@ -1,3 +1,4 @@
+// src/components/SaldoResumo.tsx
 import { useEffect, useState } from "react";
 import type { Grupo } from "../types";
 

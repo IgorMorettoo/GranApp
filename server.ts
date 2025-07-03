@@ -106,6 +106,7 @@ app.post("/api/despesas", async (req, res) => {
         [despesaId, div.pessoaId, div.valor]
       );
 
+      // Só cria saldo se não for ele mesmo
       if (div.pessoaId !== responsavel_id) {
         await db.query(
           `INSERT INTO saldos (grupo_id, devedor_id, credor_id, saldo)
@@ -172,7 +173,7 @@ app.get("/api/saldos", async (req, res) => {
   res.json(rows);
 });
 
-// ==== Inicialização do servidor ====
+// ==== Inicialização ====
 const PORT = 3001;
 app.listen(PORT, () => {
   console.log(`API rodando em http://localhost:${PORT}`);

@@ -1,3 +1,4 @@
+// src/components/AdicionarDespesaForm.tsx
 import type { Grupo, Divisao } from "../types";
 import { useState, useEffect } from "react";
 
