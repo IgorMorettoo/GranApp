@@ -62,6 +62,7 @@ export default function AdicionarDespesaForm({ grupo, atualizarGrupo }: Props) {
           valor: valorTotal,
           responsavel_id: pagadorId,
           grupo_id: grupo.id,
+          divisao,
         }),
       });
 
@@ -70,15 +71,27 @@ export default function AdicionarDespesaForm({ grupo, atualizarGrupo }: Props) {
         return;
       }
 
+      const resPessoas = await fetch(`http://localhost:3001/api/pessoas?grupo_id=${grupo.id}`);
+      const pessoas = await resPessoas.json();
+
       const resDespesas = await fetch(`http://localhost:3001/api/despesas?grupo_id=${grupo.id}`);
       const despesas = await resDespesas.json();
-      atualizarGrupo({ ...grupo, despesas });
+
+      const resPagamentos = await fetch(`http://localhost:3001/api/pagamentos?grupo_id=${grupo.id}`);
+      const pagamentos = await resPagamentos.json();
+
+      atualizarGrupo({
+        ...grupo,
+        pessoas,
+        despesas,
+        pagamentos,
+      });
 
       setDescricao("");
       setValor("");
       setValoresPersonalizados({});
     } catch (error) {
-      alert("Erro ao conectar no backend!"+error);
+      alert("Erro ao conectar no backend! " + error);
     }
   };
 
@@ -112,9 +125,7 @@ export default function AdicionarDespesaForm({ grupo, atualizarGrupo }: Props) {
         className="border p-2 mr-2"
       >
         {grupo.pessoas.map((p) => (
-          <option key={p.id} value={p.id}>
-            {p.nome}
-          </option>
+          <option key={p.id} value={p.id}>{p.nome}</option>
         ))}
       </select>
 
@@ -150,30 +161,6 @@ export default function AdicionarDespesaForm({ grupo, atualizarGrupo }: Props) {
       >
         Adicionar
       </button>
-
-      <div className="mt-6">
-        <h4 className="font-semibold">Despesas cadastradas:</h4>
-        {grupo.despesas.length === 0 ? (
-          <p className="mt-7">Nenhuma despesa adicionada ainda.</p>
-        ) : (
-          <ul>
-            {grupo.despesas.map((d) => (
-              <li key={d.id} className="mb-2">
-                <span className="descricao-despesa">{d.descricao}</span>: R$ {Number(d.valor).toFixed(2)} - Pago por:{" "}
-                {grupo.pessoas.find((p) => p.id === d.responsavelId)?.nome || "Desconhecido"}
-                <br />
-                Divisão:{" "}
-                {(d.divisao ?? [])
-                  .map(
-                    (div) =>
-                      `${grupo.pessoas.find((p) => p.id === div.pessoaId)?.nome || "?"} deve R$ ${Number(div.valor).toFixed(2)}`
-                  )
-                  .join(", ")}
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
     </div>
   );
 }

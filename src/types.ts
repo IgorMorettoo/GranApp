@@ -22,7 +22,6 @@ export type Despesa = {
   valor: number;
   responsavelId: number;
   divisao: Divisao[];
-  // pagamentos removido para refletir modelo simplificado
 };
 
 export type Grupo = {
@@ -30,5 +29,6 @@ export type Grupo = {
   nome: string;
   pessoas: Pessoa[];
   despesas: Despesa[];
-  pagamentos: Pagamento[]; // adiciona lista de pagamentos do grupo
+  pagamentos: Pagamento[];
+  saldos: { de: number; para: number; saldo: number }[];
 };

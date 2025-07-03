@@ -1,70 +1,44 @@
-import type { Grupo, Pessoa } from "../types";
+import { useEffect, useState } from "react";
+import type { Grupo } from "../types";
+
+type SaldoAPI = {
+  devedor: number;
+  credor: number;
+  saldo: number | string;
+};
 
 type Props = {
   grupo: Grupo;
 };
 
 export default function SaldoResumo({ grupo }: Props) {
-  function calcularSaldos(grupo: Grupo) {
-    // Inicializa saldo de cada pessoa pra cada credor
-    const saldos: Record<number, Record<number, number>> = {};
+  const [saldos, setSaldos] = useState<SaldoAPI[]>([]);
 
-    grupo.pessoas.forEach((p) => {
-      saldos[p.id] = {};
-      grupo.pessoas.forEach((c) => {
-        saldos[p.id][c.id] = 0;
-      });
-    });
-
-    // Processa as despesas
-    grupo.despesas.forEach((d) => {
-      (d.divisao ?? []).forEach((div) => {
-        if (div.pessoaId !== d.responsavelId) {
-          saldos[div.pessoaId][d.responsavelId] -= div.valor;
-          saldos[d.responsavelId][div.pessoaId] += div.valor;
-        }
-      });
-    });
-
-    // Processa os pagamentos (agora, nível de grupo)
-    (grupo.pagamentos ?? []).forEach((pg) => {
-      saldos[pg.de][pg.para] += pg.valor;
-      saldos[pg.para][pg.de] -= pg.valor;
-    });
-
-    // Monta as relações finais
-    const resultados: { devedor: Pessoa; credor: Pessoa; valor: number }[] = [];
-
-    grupo.pessoas.forEach((devedor) => {
-      grupo.pessoas.forEach((credor) => {
-        const valor = saldos[devedor.id][credor.id];
-        if (valor < -0.01) {
-          resultados.push({
-            devedor,
-            credor,
-            valor: Math.abs(valor)
-          });
-        }
-      });
-    });
-
-    return resultados;
-  }
-
-  const relacoes = calcularSaldos(grupo);
+  useEffect(() => {
+    fetch(`http://localhost:3001/api/saldos?grupo_id=${grupo.id}`)
+      .then((r) => r.json())
+      .then((data) => setSaldos(data))
+      .catch(() => setSaldos([]));
+  }, [grupo]);
 
   return (
     <div className="mt-4">
       <h3 className="font-semibold">Saldos:</h3>
-      {relacoes.length === 0 ? (
-        <p>Tudo certo, ninguém deve nada!</p>
+      {saldos.length === 0 ? (
+        <p className="mt-2">Tudo certo, ninguém deve nada!</p>
       ) : (
-        <ul>
-          {relacoes.map(({ devedor, credor, valor }, i) => (
-            <li key={i} className="mt-8">
-              {devedor.nome} deve R$ {valor.toFixed(2)} para {credor.nome}
-            </li>
-          ))}
+        <ul className="mt-2">
+          {saldos.map((s, i) => {
+            const devedor = grupo.pessoas.find((p) => p.id === s.devedor)?.nome || "(desconhecido)";
+            const credor = grupo.pessoas.find((p) => p.id === s.credor)?.nome || "(desconhecido)";
+            const saldoValor = Number(s.saldo);
+
+            return (
+              <li key={i}>
+                {devedor} deve R$ {saldoValor.toFixed(2)} para {credor}
+              </li>
+            );
+          })}
         </ul>
       )}
     </div>

@@ -1,3 +1,4 @@
+// GrupoPage.tsx
 import { useState } from "react";
 import type { Grupo, Pessoa } from "../types";
 import AdicionarDespesaForm from "./AdicionarDespesaForm";
@@ -19,23 +20,23 @@ export default function GrupoPage({ grupo, atualizarGrupo, voltar }: Props) {
       return;
     }
 
-    // POST para cadastrar pessoa no backend
     const resp = await fetch("http://localhost:3001/api/pessoas", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ nome: nomePessoa, grupo_id: grupo.id }),
     });
-
     if (!resp.ok) {
       alert("Erro ao adicionar pessoa!");
       return;
     }
 
-    // Recarrega lista de pessoas desse grupo
-    const resPessoas = await fetch(`http://localhost:3001/api/pessoas?grupo_id=${grupo.id}`);
-    const pessoas: Pessoa[] = await resPessoas.json();
+    const pessoas: Pessoa[] = await fetch(`http://localhost:3001/api/pessoas?grupo_id=${grupo.id}`)
+      .then((r) => r.json());
 
-    atualizarGrupo({ ...grupo, pessoas });
+    atualizarGrupo({
+      ...grupo,
+      pessoas,
+    });
     setNomePessoa("");
   };
 
@@ -43,6 +44,7 @@ export default function GrupoPage({ grupo, atualizarGrupo, voltar }: Props) {
     <div className="secao secao-roxa">
       <button onClick={voltar} className="mb-4 underline">← Voltar</button>
       <h2 className="text-xl font-bold">{grupo.nome}</h2>
+
       <div className="secao secao-roxa">
         <h3 className="Pessoa">Pessoas:</h3>
         <ul>
@@ -50,7 +52,6 @@ export default function GrupoPage({ grupo, atualizarGrupo, voltar }: Props) {
             <li key={p.id}>{p.nome}</li>
           ))}
         </ul>
-
         <input
           type="text"
           placeholder="Nome da pessoa"
