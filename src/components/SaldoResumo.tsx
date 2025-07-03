@@ -23,9 +23,6 @@ export default function SaldoResumo({ grupo }: Props) {
     fetchSaldos();
   }, [grupo.id, grupo.despesas, grupo.pagamentos]);
 
-  console.log("grupo.pessoas", grupo.pessoas);
-  console.log("saldos", saldos);
-
   const linhas: string[] = [];
 
   saldos.forEach((s) => {
@@ -35,6 +32,8 @@ export default function SaldoResumo({ grupo }: Props) {
 
     if (saldoNum > 0.01) {
       linhas.push(`${devedorNome} deve R$ ${saldoNum.toFixed(2)} para ${credorNome}`);
+    } else if (saldoNum < -0.01) {
+      linhas.push(`${credorNome} deve R$ ${Math.abs(saldoNum).toFixed(2)} para ${devedorNome}`);
     }
   });
 

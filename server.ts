@@ -1,3 +1,4 @@
+// server.ts
 import express from "express";
 import cors from "cors";
 import mysql from "mysql2/promise";
@@ -44,6 +45,13 @@ app.get("/api/pessoas", async (req, res) => {
   const [rows] = await db.query<RowDataPacket[]>(
     "SELECT * FROM pessoas WHERE grupo_id = ?",
     [grupo_id]
+  );
+  res.json(rows);
+});
+
+app.get("/api/todas-pessoas", async (_req, res) => {
+  const [rows] = await db.query<RowDataPacket[]>(
+    "SELECT id, nome FROM pessoas"
   );
   res.json(rows);
 });
@@ -164,7 +172,7 @@ app.get("/api/saldos", async (req, res) => {
   res.json(rows);
 });
 
-// ==== Inicialização ====
+// ==== Inicialização do servidor ====
 const PORT = 3001;
 app.listen(PORT, () => {
   console.log(`API rodando em http://localhost:${PORT}`);

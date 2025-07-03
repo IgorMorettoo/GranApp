@@ -1,4 +1,3 @@
-// GrupoPage.tsx
 import { useState } from "react";
 import type { Grupo, Pessoa } from "../types";
 import AdicionarDespesaForm from "./AdicionarDespesaForm";
@@ -68,7 +67,6 @@ export default function GrupoPage({ grupo, atualizarGrupo, voltar }: Props) {
         <AdicionarDespesaForm grupo={grupo} atualizarGrupo={atualizarGrupo} />
       </div>
 
-      {/* Lista de despesas cadastradas */}
       <div className="mt-4">
         <h3 className="font-semibold">Despesas Cadastradas:</h3>
         {grupo.despesas.length === 0 ? (
@@ -78,7 +76,7 @@ export default function GrupoPage({ grupo, atualizarGrupo, voltar }: Props) {
             {grupo.despesas.map((d) => (
               <li key={d.id} className="border p-2 rounded">
                 <div><strong>{d.descricao}</strong> - R$ {Number(d.valor).toFixed(2)}</div>
-                <div>Grupo: {grupo.pessoas.find(p => p.id === d.responsavelId)?.nome ?? "Desconhecido"}</div>
+                <div>Responsável: {grupo.pessoas.find(p => p.id === d.responsavelId)?.nome ?? "Desconhecido"}</div>
                 <div>
                   Divisão:
                   <ul className="list-disc ml-5">

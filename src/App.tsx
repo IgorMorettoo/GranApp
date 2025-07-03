@@ -1,3 +1,4 @@
+// src/App.tsx
 import { useState, useEffect } from "react";
 import GrupoList from "./components/GrupoList";
 import GrupoPage from "./components/GrupoPage";

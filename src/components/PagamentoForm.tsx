@@ -86,7 +86,6 @@ export default function PagamentoForm({ grupo, atualizarGrupo }: Props) {
     }
 
     await atualizarGrupo(grupo);
-
     setValor("");
   };
 
