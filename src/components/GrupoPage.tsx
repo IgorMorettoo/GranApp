@@ -65,7 +65,7 @@ export default function GrupoPage({ grupo, atualizarGrupo, voltar }: Props) {
 
       <div className="secao secao-roxa">
         <AdicionarDespesaForm grupo={grupo} atualizarGrupo={atualizarGrupo} />
-      </div>
+
 
       <div className="mt-4">
         <h3 className="font-semibold">Despesas Cadastradas:</h3>
@@ -91,6 +91,7 @@ export default function GrupoPage({ grupo, atualizarGrupo, voltar }: Props) {
             ))}
           </ul>
         )}
+      </div>
       </div>
 
       <div className="secao secao-roxa">
