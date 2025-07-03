@@ -33,7 +33,7 @@ export default function AdicionarDespesaForm({ grupo, atualizarGrupo }: Props) {
     let divisao: Divisao[] = [];
 
     if (tipoDivisao === "igual") {
-      const participantes = grupo.pessoas;
+      const participantes = grupo.pessoas.filter(p => p.id !== pagadorId);
       const valorPorPessoa = valorTotal / participantes.length;
       divisao = participantes.map((p) => ({
         pessoaId: p.id,

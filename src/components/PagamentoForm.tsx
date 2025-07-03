@@ -15,13 +15,19 @@ export default function PagamentoForm({ grupo, atualizarGrupo }: Props) {
     let saldo = 0;
     for (const desp of grupo.despesas) {
       for (const div of desp.divisao) {
-        if (div.pessoaId === deId && desp.responsavelId === paraId) saldo -= div.valor;
-        if (div.pessoaId === paraId && desp.responsavelId === deId) saldo += div.valor;
+        if (div.pessoaId !== desp.responsavelId) {
+          if (div.pessoaId === deId && desp.responsavelId === paraId) {
+            saldo += div.valor;
+          }
+          if (div.pessoaId === paraId && desp.responsavelId === deId) {
+            saldo -= div.valor;
+          }
+        }
       }
     }
     for (const pag of grupo.pagamentos) {
-      if (pag.de === deId && pag.para === paraId) saldo += pag.valor;
-      if (pag.de === paraId && pag.para === deId) saldo -= pag.valor;
+      if (pag.de === deId && pag.para === paraId) saldo -= pag.valor;
+      if (pag.de === paraId && pag.para === deId) saldo += pag.valor;
     }
     return saldo;
   };
@@ -31,7 +37,7 @@ export default function PagamentoForm({ grupo, atualizarGrupo }: Props) {
     for (const p of grupo.pessoas) {
       for (const c of grupo.pessoas) {
         if (p.id !== c.id) {
-          if (calcularSaldoEntre(p.id, c.id) < -0.01) {
+          if (calcularSaldoEntre(p.id, c.id) > 0.01) {
             setDe(p.id);
             setPara(c.id);
             encontrou = true;
@@ -59,12 +65,12 @@ export default function PagamentoForm({ grupo, atualizarGrupo }: Props) {
     }
 
     const saldoAtual = calcularSaldoEntre(de, para);
-    if (saldoAtual >= 0) {
+    if (saldoAtual <= 0) {
       alert("Não há saldo devedor entre essas pessoas.");
       return;
     }
-    if (valorNum > Math.abs(saldoAtual)) {
-      alert(`O valor excede o saldo devedor de R$ ${Math.abs(saldoAtual).toFixed(2)}.`);
+    if (valorNum > saldoAtual) {
+      alert(`O valor excede o saldo devedor de R$ ${saldoAtual.toFixed(2)}.`);
       return;
     }
 
@@ -79,7 +85,6 @@ export default function PagamentoForm({ grupo, atualizarGrupo }: Props) {
       return;
     }
 
-    // ✅ Corrigido: NUNCA usar {...grupo}
     await atualizarGrupo(grupo);
 
     setValor("");
